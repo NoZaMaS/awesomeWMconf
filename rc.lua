@@ -18,10 +18,13 @@ local hotkeys_popup = require("awful.hotkeys_popup")
 -- when client with a matching name is opened:
 require("awful.hotkeys_popup.keys")
 
+--wallpaper 
+
 -- system autostart
-awful.spawn.with_shell("picom -b")
+awful.spawn.with_shell("feh --bg-fill '$(< '${HOME}/.cache/wal/wal')'")
+--awful.spawn.with_shell("picom -b")
 awful.spawn.with_shell("flameshot")
-awful.spawn.with_shell("chromium")
+--awful.spawn.with_shell("chromium")
 -- {{{ Error handling
 -- Check if awesome encountered an error during startup and fell back to
 -- another config (This code will only ever execute for the fallback config)
@@ -49,11 +52,11 @@ end
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, font and wallpapers.
-beautiful.init("/home/noza/.config/awesome/default/theme.lua")
+beautiful.init("/home/noza/.config/awesome/xresources/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "kitty"
-editor = os.getenv("EDITOR") or "nano"
+editor = os.getenv("EDITOR") or "nvim"
 editor_cmd = terminal .. " -e " .. editor
 
 -- Default modkey.
@@ -252,7 +255,19 @@ root.buttons(gears.table.join(
 app = {
   specialCharacter="gnome-characters",
   fileBrowser="thunar",
+  screenshot="flameshot",
+  renderer="picom -b",
+  background="feh --bg-fill '$(< '/home/noza/.cache/wal/wal')'",
 }
+
+ctrl = {
+  volumeUp="bash /home/noza/.scripts/volume up",
+  volumeDown="bash /home/noza/.scripts/volume down",
+  volumeMute="bash /home/noza/.scripts/volume mute",
+  screenshot="flameshot gui",
+}
+
+
 
 -- {{{ Key bindings
 globalkeys = gears.table.join(
@@ -272,23 +287,26 @@ globalkeys = gears.table.join(
         {description = "focus next by index", group = "client"}
     ),
 
--- volume control
+-------------------------- volume control
     awful.key({}, "XF86AudioRaiseVolume", 
     function ()
-      if awful.spawn("pamixer --get-volume")>100 
-        then awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ +5%")
-      elseif awful.spawn("pamixer --get-volume")<=100 
-        then awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ 100%")
-      end
+      awful.spawn(ctrl.volumeUp)
     end),
    awful.key({}, "XF86AudioLowerVolume", 
    function ()
-    if awful.spawn("pamixer --get-volume")>0 
-      then awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ -5%")
-    elseif awful.spawn("pamixer --get-volume")<=0
-      then awful.spawn("pactl set-sink-volume @DEFAULT_SINK@ 0%")
-    end
+      awful.spawn(ctrl.volumeDown)
    end),
+  awful.key({}, "XF86AudioMute", 
+  function ()
+    awful.spawn(ctrl.volumeMute)
+  end),
+
+----------------------------------------
+
+    awful.key({modkey, }, "p", 
+  function ()
+    awful.spawn(ctrl.screenshot)
+  end),
 
     awful.key({ modkey,           }, "k",
         function ()
